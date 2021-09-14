@@ -1,3 +1,4 @@
 *.events
 *.snapshots
 events/default/*
+*.mv.db
