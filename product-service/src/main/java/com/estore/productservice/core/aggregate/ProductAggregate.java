@@ -52,7 +52,7 @@ public class ProductAggregate {
         }
 
         final var productReservedEvent = ProductReservedEvent.builder()
-                .productId(reserveProductCommand.getProductId())
+                .productId(reserveProductCommand.getId())
                 .orderId(reserveProductCommand.getOrderId())
                 .quantity(reserveProductCommand.getQuantity())
                 .userId(reserveProductCommand.getUserId())
