@@ -1,5 +1,7 @@
 package com.estore.productservice.core.aggregate;
 
+import com.estore.core.command.ReserveProductCommand;
+import com.estore.core.event.ProductReservedEvent;
 import com.estore.productservice.command.model.CreateProductCommand;
 import com.estore.productservice.core.event.ProductCreatedEvent;
 import lombok.*;
@@ -43,12 +45,33 @@ public class ProductAggregate {
         AggregateLifecycle.apply(productCreatedEvent);
     }
 
+    @CommandHandler
+    public void handle(final ReserveProductCommand reserveProductCommand) {
+        if (quantity < reserveProductCommand.getQuantity()) {
+            throw new IllegalStateException("Insufficient number of items in stock");
+        }
+
+        final var productReservedEvent = ProductReservedEvent.builder()
+                .productId(reserveProductCommand.getProductId())
+                .orderId(reserveProductCommand.getOrderId())
+                .quantity(reserveProductCommand.getQuantity())
+                .userId(reserveProductCommand.getUserId())
+                .build();
+
+        AggregateLifecycle.apply(productReservedEvent);
+    }
+
     @EventSourcingHandler
     public void on(ProductCreatedEvent productCreatedEvent) {
         this.id = productCreatedEvent.getId();
         this.price = productCreatedEvent.getPrice();
         this.title = productCreatedEvent.getTitle();
         this.quantity = productCreatedEvent.getQuantity();
+    }
+
+    @EventSourcingHandler
+    public void on(ProductReservedEvent productReservedEvent) {
+        this.quantity -= productReservedEvent.getQuantity();
     }
 
 }

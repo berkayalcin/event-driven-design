@@ -1,5 +1,6 @@
 package com.estore.productservice.command.handler;
 
+import com.estore.core.event.ProductReservedEvent;
 import com.estore.productservice.core.entity.Product;
 import com.estore.productservice.core.event.ProductCreatedEvent;
 import com.estore.productservice.core.repository.ProductRepository;
@@ -26,6 +27,20 @@ public class ProductEventHandler {
                 .title(productCreatedEvent.getTitle())
                 .build();
 
+        productRepository.save(product);
+    }
+
+    @SneakyThrows
+    @EventHandler
+    public void on(final ProductReservedEvent productReservedEvent) {
+        final var productOptional = productRepository.findById(productReservedEvent.getProductId());
+
+        if (productOptional.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        final var product = productOptional.get();
+        product.setQuantity(product.getQuantity() - productReservedEvent.getQuantity());
         productRepository.save(product);
     }
 
