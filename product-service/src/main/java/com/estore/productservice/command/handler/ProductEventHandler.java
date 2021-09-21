@@ -1,11 +1,12 @@
 package com.estore.productservice.command.handler;
 
-import com.estore.core.event.ProductReservedEvent;
 import com.estore.productservice.core.entity.Product;
 import com.estore.productservice.core.event.ProductCreatedEvent;
+import com.estore.productservice.core.event.ProductReservedEvent;
 import com.estore.productservice.core.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.messaging.interceptors.ExceptionHandler;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @ProcessingGroup(value = "product-group")
+@Slf4j
 public class ProductEventHandler {
     private final ProductRepository productRepository;
 
@@ -47,6 +49,7 @@ public class ProductEventHandler {
     @ExceptionHandler(resultType = IllegalArgumentException.class)
     public void handle(IllegalArgumentException illegalArgumentException) {
         // Log error message
+        log.error("Error on handler ", illegalArgumentException);
     }
 
     @ExceptionHandler(resultType = Exception.class)

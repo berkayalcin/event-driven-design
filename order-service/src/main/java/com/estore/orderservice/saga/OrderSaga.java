@@ -1,12 +1,13 @@
 package com.estore.orderservice.saga;
 
-import com.estore.core.command.ReserveProductCommand;
-import com.estore.core.event.ProductReservedEvent;
-import com.estore.core.model.User;
-import com.estore.core.query.FetchUserPaymentDetailsQuery;
 import com.estore.orderservice.command.event.OrderCreatedEvent;
+import com.estore.orderservice.core.model.User;
+import com.estore.productservice.command.model.ReserveProductCommand;
+import com.estore.productservice.core.event.ProductReservedEvent;
+import com.estore.userservice.query.model.FetchUserPaymentDetailsQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.interceptors.ExceptionHandler;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.modelling.saga.SagaEventHandler;
 import org.axonframework.modelling.saga.StartSaga;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class OrderSaga {
     @Autowired
     private transient CommandGateway commandGateway;
-
     @Autowired
     private transient QueryGateway queryGateway;
 
@@ -38,12 +38,13 @@ public class OrderSaga {
         commandGateway.send(reserveProductCommand, (commandMessage, commandResultMessage) -> {
             if (commandResultMessage.isExceptional()) {
                 // Start compensating transaction
+                log.error(commandResultMessage.exceptionResult().getMessage());
             }
         });
     }
 
-    @SagaEventHandler(associationProperty = "orderId")
-    public void handleProductReservedEvent(final ProductReservedEvent productReservedEvent) {
+    @SagaEventHandler(associationProperty = "orderId", payloadType = ProductReservedEvent.class)
+    public void handle(ProductReservedEvent productReservedEvent) {
         // Process User-Payment
         log.info("ProductReservedEvent handled for orderId {} and productId {}", productReservedEvent.getOrderId(), productReservedEvent.getProductId());
 
@@ -64,5 +65,10 @@ public class OrderSaga {
         }
 
 
+    }
+
+    @ExceptionHandler
+    public void handleException(Exception exception) {
+        log.error("Error", exception);
     }
 }

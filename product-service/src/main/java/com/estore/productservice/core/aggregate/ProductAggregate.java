@@ -1,10 +1,11 @@
 package com.estore.productservice.core.aggregate;
 
-import com.estore.core.command.ReserveProductCommand;
-import com.estore.core.event.ProductReservedEvent;
 import com.estore.productservice.command.model.CreateProductCommand;
+import com.estore.productservice.command.model.ReserveProductCommand;
 import com.estore.productservice.core.event.ProductCreatedEvent;
+import com.estore.productservice.core.event.ProductReservedEvent;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 @Builder
 @Getter
 @Setter
+@Slf4j
 public class ProductAggregate {
     @AggregateIdentifier
     private String id;
@@ -47,6 +49,7 @@ public class ProductAggregate {
 
     @CommandHandler
     public void handle(final ReserveProductCommand reserveProductCommand) {
+        log.info("Product Reserve Command Handled {}", reserveProductCommand);
         if (quantity < reserveProductCommand.getQuantity()) {
             throw new IllegalStateException("Insufficient number of items in stock");
         }
@@ -59,6 +62,7 @@ public class ProductAggregate {
                 .build();
 
         AggregateLifecycle.apply(productReservedEvent);
+        log.info("Product Reserved Event Published {}", productReservedEvent);
     }
 
     @EventSourcingHandler

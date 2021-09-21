@@ -1,8 +1,8 @@
 package com.estore.userservice.query.handler;
 
-import com.estore.core.model.PaymentDetail;
-import com.estore.core.model.User;
-import com.estore.core.query.FetchUserPaymentDetailsQuery;
+import com.estore.userservice.core.model.PaymentDetail;
+import com.estore.userservice.core.model.User;
+import com.estore.userservice.query.model.FetchUserPaymentDetailsQuery;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Component;

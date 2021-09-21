@@ -4,8 +4,10 @@ import com.estore.orderservice.command.enums.OrderStatus;
 import com.estore.orderservice.command.event.OrderCreatedEvent;
 import com.estore.orderservice.command.model.CreateOrderCommand;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.messaging.interceptors.ExceptionHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
@@ -16,6 +18,7 @@ import org.axonframework.spring.stereotype.Aggregate;
 @Getter
 @Setter
 @Builder
+@Slf4j
 public class OrderAggregate {
     @AggregateIdentifier
     private String id;
@@ -58,5 +61,10 @@ public class OrderAggregate {
         this.addressId = orderCreatedEvent.getAddressId();
         this.orderStatus = orderCreatedEvent.getOrderStatus();
         this.userId = orderCreatedEvent.getUserId();
+    }
+
+    @ExceptionHandler(resultType = Exception.class)
+    public void error(Exception exp) {
+        log.error(exp.getMessage());
     }
 }
